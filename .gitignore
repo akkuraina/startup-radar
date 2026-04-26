@@ -1,0 +1,45 @@
+# Environment Variables (keep private!)
+.env
+.env.local
+.env.*.local
+
+# Backend
+backend/__pycache__/
+backend/*.py[cod]
+backend/*$py.class
+backend/.venv/
+backend/venv/
+backend/env/
+backend/logs/
+backend/output/
+backend/db/
+backend/.pytest_cache/
+
+# Frontend
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/build/
+frontend/.swc/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+postgres_data/
+
+# Docker
+.dockerignore
+
+# Misc
+*.log
+.cache/
+dist/
