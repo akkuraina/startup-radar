@@ -3,7 +3,12 @@
 ## 30-Second Start
 
 ```bash
-# Make sure you have .env file with API keys
+# Prerequisites:
+# 1. Create free Supabase account (https://supabase.com)
+# 2. Get DATABASE_URL from Supabase (see SUPABASE_SETUP.md)
+# 3. Add DATABASE_URL to .env with other API keys
+
+# Then:
 docker-compose up
 
 # Wait 2 minutes, then:
@@ -14,6 +19,17 @@ docker-compose up
 
 ---
 
+## Setup Checklist
+
+- [ ] Supabase account created
+- [ ] Database connection string obtained
+- [ ] `.env` file created with DATABASE_URL and API keys
+- [ ] Docker Desktop installed (or Python 3.11 + Node 18 for local dev)
+
+**See [SUPABASE_SETUP.md](SUPABASE_SETUP.md)** for detailed setup instructions.
+
+---
+
 ## Development Quick Commands
 
 ### Backend Only
@@ -21,7 +37,7 @@ docker-compose up
 ```bash
 cd backend
 .\venv\Scripts\Activate.ps1
-python main.py
+uvicorn main:app --reload
 ```
 
 ### Frontend Only
@@ -44,10 +60,14 @@ curl -X POST http://localhost:8000/api/pipeline/run
 curl http://localhost:8000/health
 ```
 
-### Database Query
+### Query Supabase Database
 
 ```bash
-psql -U postgres -d startup_radar -c "SELECT COUNT(*) FROM companies;"
+# Using psql (if installed):
+psql "postgresql://postgres.[PROJECT_ID]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:5432/postgres" \
+  -c "SELECT COUNT(*) FROM companies;"
+
+# Or use Supabase Dashboard: SQL Editor section
 ```
 
 ### View Backend Logs

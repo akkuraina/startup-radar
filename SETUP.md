@@ -85,10 +85,12 @@ Copy-Item .env.example .env
 notepad .env
 ```
 
-Fill in:
+**For DATABASE_URL, see [SUPABASE_SETUP.md](SUPABASE_SETUP.md)** - it has complete Supabase connection instructions.
+
+Quick preview:
 
 ```
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/startup_radar
+DATABASE_URL=postgresql://postgres.[PROJECT_ID]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:5432/postgres
 TAVILY_API_KEY=tvly-xxxxx
 ANTHROPIC_API_KEY=sk-ant-xxxxx
 RESEND_API_KEY=re-xxxxx
@@ -98,29 +100,24 @@ TO_EMAILS=your-email@example.com
 
 ---
 
-## Step 4a: Run Locally (PostgreSQL Required)
+## Step 4: Setup Supabase Database (5 minutes)
 
-### Option 1: Using Local PostgreSQL
+**🎉 No local database installation needed!** We use Supabase cloud PostgreSQL.
 
-**Install PostgreSQL:**
+**Complete guide**: [SUPABASE_SETUP.md](SUPABASE_SETUP.md)
 
-1. Download from https://www.postgresql.org/download/windows/
-2. Install with default settings
-3. Remember the password you set
+**Quick steps**:
 
-**Create Database:**
+1. Go to https://supabase.com
+2. Create free project
+3. Get connection string from Settings → Database
+4. Paste into `.env` as `DATABASE_URL`
 
-```powershell
-# Open PowerShell as Admin
-# Connect to PostgreSQL
-psql -U postgres
+---
 
-# In psql:
-CREATE DATABASE startup_radar;
-\q
-```
+## Step 5: Run Your Application
 
-**Start Backend:**
+### Option A: Local Development (Recommended)
 
 ```powershell
 cd backend
@@ -128,68 +125,47 @@ cd backend
 # Activate venv
 .\venv\Scripts\Activate.ps1
 
-# Run
-python main.py
+# Run API
+uvicorn main:app --reload
+
 # You should see:
 # ✅ Database initialized successfully
-# INFO:     Application startup complete
+# ✅ Database connection verified
 # Uvicorn running on http://0.0.0.0:8000
 ```
 
-**Start Frontend (new PowerShell):**
+**In another PowerShell window**:
 
 ```powershell
 cd frontend
 npm run dev
+
 # You should see:
 # > next dev
 # - ready started server on 0.0.0.0:3000
 ```
 
-**Access Dashboard:**
-
-- Frontend: http://localhost:3000
-- API Docs: http://localhost:8000/docs
-
----
-
-## Step 4b: Run with Docker (Easier!)
-
-### Prerequisites
-
-- Docker Desktop installed (https://www.docker.com/products/docker-desktop)
-- All services start automatically
-
-### Start All Services
+### Option B: Docker Compose (Full Stack)
 
 ```powershell
 # From startup-radar root
 docker-compose up --build
 
-# First time takes 2-3 minutes
+# All services start automatically
 # You should see:
-# postgres_1  | database system is ready to accept connections
 # backend_1   | ✅ Database initialized successfully
-# backend_1   | Uvicorn running on http://0.0.0.0:8000
 # frontend_1  | ready started server on 0.0.0.0:3000
 ```
 
-### Access Services
+### Access Your App
 
 - **Frontend**: http://localhost:3000
-- **API**: http://localhost:8000
 - **API Docs**: http://localhost:8000/docs
-- **Database**: postgres://postgres:postgres@localhost:5432/startup_radar
-
-### Stop Services
-
-```powershell
-docker-compose down
-```
+- **API Health**: http://localhost:8000/health
 
 ---
 
-## Step 5: Test the System
+## Step 6: Test the System
 
 ### 1. Check API Health
 

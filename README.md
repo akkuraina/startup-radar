@@ -2,7 +2,7 @@
 
 **Automated system to discover recently-funded startups and detect when they're hiring.**
 
-Uses **Tavily API** for web search, **Claude LLM** for intelligent data extraction, **PostgreSQL** for storage, and **Next.js** for the dashboard.
+Uses **Tavily API** for web search, **Claude LLM** for intelligent data extraction, **Supabase PostgreSQL** for cloud storage, and **Next.js** for the dashboard.
 
 ---
 
@@ -23,7 +23,7 @@ Uses **Tavily API** for web search, **Claude LLM** for intelligent data extracti
 
 - Python 3.11+
 - Node.js 18+
-- PostgreSQL (or use Docker Compose)
+- Supabase Account (Free) - see [SUPABASE_SETUP.md](SUPABASE_SETUP.md)
 - API Keys: Tavily, Claude, Resend
 
 ### Local Development
@@ -38,28 +38,39 @@ source venv/bin/activate  # or `venv\Scripts\activate` on Windows
 pip install -r requirements.txt
 ```
 
-**2. Configure Environment**
+**2. Configure Supabase Database**
+
+**📖 Complete guide**: [SUPABASE_SETUP.md](SUPABASE_SETUP.md)
+
+Quick steps:
+
+1. Create free Supabase project at https://supabase.com
+2. Get connection string from Settings → Database
+3. Save in `.env` as `DATABASE_URL`
+
+**3. Configure Environment**
 
 ```bash
-# Copy .env.example to .env and fill in your API keys
+# Copy .env.example to .env
 cp ../.env.example ../.env
 
-# Update with your actual API keys:
+# Update with your values:
+# - DATABASE_URL from Supabase (see SUPABASE_SETUP.md)
 # - TAVILY_API_KEY from https://tavily.com
 # - ANTHROPIC_API_KEY from https://console.anthropic.com
 # - RESEND_API_KEY from https://resend.com
 ```
 
-**3. Start Backend**
+**4. Start Backend**
 
 ```bash
 # From backend/ directory
-python main.py
+uvicorn main:app --reload
 # API available at http://localhost:8000
 # Swagger docs at http://localhost:8000/docs
 ```
 
-**4. Start Frontend (in new terminal)**
+**5. Start Frontend (in new terminal)**
 
 ```bash
 cd frontend
@@ -68,7 +79,7 @@ npm run dev
 # Dashboard available at http://localhost:3000
 ```
 
-### Docker Compose (Recommended)
+### Docker Compose (All Services)
 
 ```bash
 # Build and start all services
@@ -77,7 +88,7 @@ docker-compose up --build
 # Access:
 # - API: http://localhost:8000
 # - Frontend: http://localhost:3000
-# - Database: postgres://postgres:postgres@localhost:5432/startup_radar
+# - Database: Supabase cloud-hosted (no local database needed)
 ```
 
 ---
@@ -119,9 +130,10 @@ docker-compose up --build
         │  - Hiring detect │
         └────────┬────────┘
                  │
-        ┌────────▼────────┐
-        │  PostgreSQL DB   │
-        └────────┬────────┘
+        ┌────────▼────────────────┐
+        │  Supabase PostgreSQL DB  │
+        │  (Cloud-Hosted)          │
+        └────────┬────────────────┘
                  │
      ┌───────────┴──────────┐
      │                      │
@@ -214,8 +226,9 @@ docker-compose up --build
 ### Environment Variables (.env)
 
 ```bash
-# Database (PostgreSQL)
-DATABASE_URL=postgresql://user:pass@localhost:5432/startup_radar
+# Database (Supabase PostgreSQL - Cloud Hosted)
+# Get from: https://supabase.com (see SUPABASE_SETUP.md)
+DATABASE_URL=postgresql://postgres.[PROJECT_ID]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:5432/postgres
 
 # Tavily API (Web Search)
 TAVILY_API_KEY=your_tavily_key
@@ -365,17 +378,18 @@ Or use the dashboard "Run Pipeline" button.
 
 ### Current Setup
 
-- **Database**: PostgreSQL (easily scales to thousands of companies)
+- **Database**: Supabase PostgreSQL (cloud-hosted, easily scales to thousands of companies)
 - **API**: FastAPI (handles hundreds of requests/second)
 - **Pipeline**: Runs every 6 hours (can be adjusted)
 
 ### Future Scaling
 
-1. **Caching**: Add Redis for frequently accessed data
-2. **Queue**: Use Celery + RabbitMQ for distributed pipeline
-3. **Load Balancer**: Multiple API replicas
-4. **Monitoring**: Add Prometheus + Grafana
-5. **CDN**: Serve frontend through CDN
+1. **Upgrade Plan**: Supabase Pro ($25/month) for 8GB storage
+2. **Caching**: Add Redis for frequently accessed data
+3. **Queue**: Use Celery + RabbitMQ for distributed pipeline
+4. **Load Balancer**: Multiple API replicas
+5. **Monitoring**: Add Prometheus + Grafana
+6. **CDN**: Serve frontend through CDN
 
 ---
 
@@ -395,9 +409,11 @@ Toggle debug mode in `config.py`.
 ### Database Connection Error
 
 ```
-Check DATABASE_URL in .env
-Ensure PostgreSQL is running
-If using Docker: `docker-compose logs postgres`
+1. Check DATABASE_URL in .env matches your Supabase connection string
+2. Verify Supabase project is active
+3. Check password is correct in connection string
+4. Test: psql [YOUR_CONNECTION_STRING]
+See SUPABASE_SETUP.md for complete Supabase setup
 ```
 
 ### API Key Errors
@@ -422,45 +438,3 @@ Check email spam folder for delivery
 ```
 
 ---
-
-## 📈 Monitoring
-
-### API Status
-
-```bash
-curl http://localhost:8000/health
-```
-
-### Pipeline Status
-
-```bash
-curl http://localhost:8000/api/stats
-```
-
-### Database Check
-
-```bash
-psql -h localhost -U postgres -d startup_radar -c "SELECT COUNT(*) FROM companies;"
-```
-
----
-
-## 📄 License
-
-MIT License - Feel free to use this project for personal or commercial purposes.
-
----
-
-## 🤝 Contributing
-
-Found a bug or want to contribute? Feel free to submit issues or pull requests!
-
----
-
-## 📞 Support
-
-For issues, questions, or suggestions, open an issue on GitHub or contact the maintainer.
-
----
-
-**Built with ❤️ for discovering the next big startup**

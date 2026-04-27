@@ -3,6 +3,10 @@ FastAPI REST API Server for Startup Radar
 Endpoints for dashboard and data access
 """
 
+# Load environment variables from .env file FIRST
+from dotenv import load_dotenv
+load_dotenv()
+
 import os
 import logging
 from datetime import datetime, timedelta

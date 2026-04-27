@@ -4,25 +4,36 @@ Uses SQLAlchemy with PostgreSQL (Supabase)
 """
 
 import os
+from dotenv import load_dotenv
+load_dotenv()
 from sqlalchemy import create_engine, inspect
 from sqlalchemy.orm import sessionmaker, Session
-from sqlalchemy.pool import NullPool
+from sqlalchemy.pool import NullPool, QueuePool
 from models import Base
 import logging
 
 logger = logging.getLogger(__name__)
 
-# Get database URL from environment
+# Get database URL from environment (Supabase hosted PostgreSQL)
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql://user:password@localhost:5432/startup_radar"
+    "postgresql://postgres:[password]@aws-0-[region].pooler.supabase.com:5432/postgres"
 )
 
 # Create engine
-# NullPool avoids connection pooling issues with Supabase
+# For Supabase: Use QueuePool with connection pooling
+# Supabase has built-in connection pooler at port 6543 or direct at 5432
+# connect_args includes SSL requirement for Supabase
 engine = create_engine(
     DATABASE_URL,
-    poolclass=NullPool,
+    poolclass=QueuePool,
+    pool_size=5,
+    max_overflow=10,
+    pool_pre_ping=True,  # Test connection before using it
+    connect_args={
+        "sslmode": "require",  # Supabase requires SSL
+        "connect_timeout": 10,
+    },
     echo=False  # Set to True for SQL debugging
 )
 
